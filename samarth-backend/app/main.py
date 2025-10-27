@@ -5,40 +5,35 @@ from app.config import settings
 from app.core.logging import logger, setup_logging
 from app.api.routes import health, analytics
 
-# Setup logging
 setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
-    logger.info("Starting Project Samarth API (POC Mode)...")
+    logger.info("Starting Project Samarth API...")
     yield
     logger.info("Shutting down Project Samarth API...")
 
-# Create FastAPI application
 app = FastAPI(
-    title="Project Samarth API (POC)",
+    title="Project Samarth API",
     description="AI-Powered Agricultural Data Analytics Core Functionality",
     version="1.0.0",
     lifespan=lifespan
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include only core routers
 app.include_router(health.router)
 app.include_router(analytics.router)
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {
         "service": "Project Samarth API",
         "version": "1.0.0",

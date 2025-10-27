@@ -23,11 +23,12 @@ class QueryProcessor:
         try:
             logger.info(f"Processing query {query_id}: {query[:50]}...")
             
-            # Step 1: Fetch relevant data (currently mocked/simple)
-            # data = await data_service.fetch_agricultural_data("crop_production", filters)
+            # Step 1: Fetch relevant data (Now active, currently mocked in data_service.py)
+            data = await data_service.fetch_agricultural_data("crop_production", filters)
             
             # Step 2: Generate insights using AI
-            insights = await ai_service.generate_insights(query, context)
+            # CHANGE: Pass the fetched data to the AI service
+            insights = await ai_service.generate_insights(query, context, data)
             
             # Step 3: Format response
             execution_time = time.time() - start_time
@@ -36,7 +37,8 @@ class QueryProcessor:
                 query_id=query_id,
                 query=query,
                 insights=insights,
-                data_points=None,
+                # CHANGE: Extract the list of data points from the dict returned by data_service
+                data_points=data.get('data') if data else None,
                 execution_time=round(execution_time, 2)
             )
             

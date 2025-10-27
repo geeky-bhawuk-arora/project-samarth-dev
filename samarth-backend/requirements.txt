@@ -6,3 +6,4 @@ python-dotenv
 google-genai
 sqlalchemy
 alembic
+httpx 
