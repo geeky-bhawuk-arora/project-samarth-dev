@@ -12,16 +12,23 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = Field(..., description="The required API Key for Google Gemini.")
     AI_MODEL: str = "gemini-2.5-flash"
     
-    # data src
-    # DATA_GOV_API_KEY: str = Field(default="", description="The API Key for the external data service (data.gov.in).")
-    # DATA_GOV_BASE_URL: str = "https://api.data.gov.in/resource"
+    # NEW: PostgreSQL Database Configuration
+    POSTGRES_USER: str = Field("samarth_user", description="PostgreSQL database user.")
+    POSTGRES_PASSWORD: str = Field("samarth_password", description="PostgreSQL database password.")
+    POSTGRES_SERVER: str = Field("localhost", description="PostgreSQL server hostname.")
+    POSTGRES_PORT: str = Field("5432", description="PostgreSQL server port.")
+    POSTGRES_DB: str = Field("samarth_db", description="PostgreSQL database name.")
+
+    # Computed Database URL (Used by SQLAlchemy and pandas)
+    @property
+    def DATABASE_URL(self) -> str:
+        # Using psycopg2 driver
+        return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
     
     # Security (Placeholder for POC)
-    SECRET_KEY: str = Field(..., description="A strong secret key for security tokens.")
+    SECRET_KEY: str = Field("a-very-secure-secret-key-for-poc-only", description="A strong secret key for security tokens.")
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
-    # ALLOW_ORIGINS=""
     
     # Logging
     LOG_LEVEL: str = "INFO"

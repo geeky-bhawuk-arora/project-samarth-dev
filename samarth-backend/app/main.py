@@ -4,13 +4,22 @@ from contextlib import asynccontextmanager
 from app.config import settings
 from app.core.logging import logger, setup_logging
 from app.api.routes import health, analytics
+from app.tools.sql_tools import setup_mock_database # NEW: Imports the Postgres setup function
 
 setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan events"""
+    """Application lifespan events: Initialize database and log startup/shutdown."""
     logger.info("Starting Project Samarth API...")
+    
+    # Initialize the mock database table (Phase 1: Data Store)
+    # This connects to PostgreSQL and loads mock data
+    if setup_mock_database():
+         logger.info("PostgreSQL Mock Database loaded successfully.")
+    else:
+         logger.error("Failed to load PostgreSQL mock database. Check connection settings.")
+    
     yield
     logger.info("Shutting down Project Samarth API...")
 
@@ -29,7 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(health.router)
+app.include_router(health.router) # Make sure health is included
 app.include_router(analytics.router)
 
 @app.get("/")

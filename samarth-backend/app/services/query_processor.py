@@ -2,7 +2,7 @@ import time
 import uuid
 from typing import Optional, Dict
 from app.services.ai_service import ai_service
-from app.services.data_service import data_service
+# Removed data_service import as it is no longer used for fetching data
 from app.core.logging import logger
 from app.models.response_models import AnalyticsResponse
 
@@ -23,28 +23,22 @@ class QueryProcessor:
         try:
             logger.info(f"Processing query {query_id}: {query[:50]}...")
             
-            # Step 1: Fetch relevant data (Now active, currently mocked in data_service.py)
-            data = await data_service.fetch_agricultural_data("crop_production", filters)
+            # Data fetching is now handled internally by the AI Agent via SQL Tool.
             
-            # Step 2: Generate insights using AI
-            # CHANGE: Pass the fetched data to the AI service
-            insights = await ai_service.generate_insights(query, context, data)
+            insights = await ai_service.generate_insights(query, context)
             
-            # Step 3: Format response
             execution_time = time.time() - start_time
             
             return AnalyticsResponse(
                 query_id=query_id,
                 query=query,
                 insights=insights,
-                # CHANGE: Extract the list of data points from the dict returned by data_service
-                data_points=data.get('data') if data else None,
+                data_points=None, # Data points are embedded in the 'insights' string
                 execution_time=round(execution_time, 2)
             )
             
         except Exception as e:
             logger.error(f"Error processing query {query_id}: {e}")
-            # Re-raise to be caught by the FastAPI router
-            raise
+            raise # Re-raise to be caught by the FastAPI router
 
 query_processor = QueryProcessor()
