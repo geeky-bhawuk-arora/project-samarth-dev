@@ -8,6 +8,11 @@ from app.tools.sql_tools import setup_mock_database # NEW: Imports the Postgres 
 
 setup_logging()
 
+try:
+    from app.config import settings
+except ImportError:
+    settings = None
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events: Initialize database and log startup/shutdown."""
@@ -50,11 +55,21 @@ async def root():
         "docs": "/docs"
     }
 
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(
+#         "app.main:app",
+#         host=settings.API_HOST,
+#         port=settings.API_PORT,
+#         reload=settings.DEBUG
+#     )
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "app.main:app",
-        host=settings.API_HOST,
-        port=settings.API_PORT,
-        reload=settings.DEBUG
+        host=getattr(settings, "API_HOST", "0.0.0.0"),
+        port=getattr(settings, "API_PORT", 8000),
+        reload=getattr(settings, "DEBUG", True)
     )
